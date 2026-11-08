@@ -10,7 +10,7 @@
      También se detectan "Quercus_ilex_1.png", "Quercus ilex1.webp", etc.
    ========================================================= */
 
-const CARPETA_IMG = "./img";
+const CARPETA_IMG = "img";
 const EXTENSIONES = ["jpg", "jpeg", "png", "webp", "JPG", "JPEG", "PNG"];
 const SEPARADORES = [" ", "_", "", "-"];
 const MAX_IMAGENES = 30;
@@ -138,7 +138,7 @@ let estado = null;
 function nuevoEstado() {
   return {
     cola: [], indice: 0, puntos: 0, aciertos: 0, racha: 0,
-    fallos: [], modo: "test", total: 0,
+    fallos: [], modo: "test", estricto: false, total: 0,
     imgs: [], imgIdx: 0, nivelPista: 0, respondida: false, actual: null
   };
 }
@@ -191,6 +191,7 @@ async function empezar() {
 
   estado = nuevoEstado();
   estado.modo = modo;
+  estado.estricto = modo === "escribir" && $("estricto").checked;
   let cola = barajar(conImagen);
   if (cantidad > 0) cola = cola.slice(0, cantidad);
   estado.cola = cola;
@@ -330,16 +331,28 @@ function responderTest(opcion, boton) {
   mostrarFeedback(acierto);
 }
 
+// Estricto: las letras deben ser exactas (se ignoran mayúsculas y espacios sobrantes)
+const normalizarEstricto = (s) => s.toLowerCase().replace(/\s+/g, " ").trim();
+
 function comprobarEscrito(texto) {
   const p = estado.actual;
   const t = normalizar(texto);
   if (!t) return null;
-  const validas = [p.nombre, ...(p.alias || [])].map(normalizar);
-  if (validas.includes(t)) return { ok: true, aprox: false };
-  // Tolerancia a erratas pequeñas
-  for (const v of validas) {
-    const tol = v.length > 14 ? 2 : 1;
-    if (distancia(t, v) <= tol) return { ok: true, aprox: true };
+  const nombres = [p.nombre, ...(p.alias || [])];
+
+  // Coincidencia exacta (letra por letra)
+  const tEstricto = normalizarEstricto(texto);
+  if (nombres.some((n) => normalizarEstricto(n) === tEstricto)) return { ok: true, aprox: false };
+
+  // Con tolerancia a erratas pequeñas
+  const validas = nombres.map(normalizar);
+  let cercano = validas.includes(t);
+  if (!cercano) {
+    cercano = validas.some((v) => distancia(t, v) <= (v.length > 14 ? 2 : 1));
+  }
+  if (cercano) {
+    // En modo estricto una errata es un fallo
+    return estado.estricto ? { ok: false, casi: true } : { ok: true, aprox: true };
   }
   return { ok: false };
 }
@@ -352,7 +365,10 @@ function responderEscrito(e) {
   $("entrada").disabled = true;
   $("zona-escribir").querySelector("button").disabled = true;
   puntuar(r.ok);
-  mostrarFeedback(r.ok, r.aprox ? " (con una errata, pero te la doy por buena)" : "");
+  let extra = "";
+  if (r.aprox) extra = " (con una errata, pero te la doy por buena)";
+  if (r.casi) extra = ` Estabas muy cerca, pero en modo estricto cuenta como fallo (escribiste «${$("entrada").value.trim()}»).`;
+  mostrarFeedback(r.ok, extra);
 }
 
 function saltar() {
@@ -427,4 +443,12 @@ document.addEventListener("keydown", (ev) => {
   if (ev.key === "Enter" && estado.respondida) { ev.preventDefault(); siguiente(); }
 });
 
+// El modo estricto solo tiene sentido al escribir
+function actualizarCajaEstricto() {
+  const escribir = document.querySelector('input[name="modo"]:checked').value === "escribir";
+  $("caja-estricto").classList.toggle("oculto", !escribir);
+}
+document.querySelectorAll('input[name="modo"]').forEach((r) => r.addEventListener("change", actualizarCajaEstricto));
+
 cargarFiltro();
+actualizarCajaEstricto();
