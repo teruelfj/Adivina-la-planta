@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adivina la planta</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="cabecera">
+    <h1>🌿 Adivina la planta</h1>
+    <div id="marcador" class="marcador oculto">
+      <span>Pregunta <b id="num-pregunta">0</b>/<b id="total-preguntas">0</b></span>
+      <span>Puntos <b id="puntos">0</b></span>
+      <span>Racha <b id="racha">0</b></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- INICIO -->
+    <section id="inicio" class="tarjeta">
+      <h2>Configura la partida</h2>
+
+      <fieldset>
+        <legend>Modo de respuesta</legend>
+        <label class="opcion-radio"><input type="radio" name="modo" value="test" checked> Test (4 opciones)</label>
+        <label class="opcion-radio"><input type="radio" name="modo" value="escribir"> Escribir el nombre</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Número de preguntas</legend>
+        <label class="opcion-radio"><input type="radio" name="cantidad" value="10" checked> 10</label>
+        <label class="opcion-radio"><input type="radio" name="cantidad" value="20"> 20</label>
+        <label class="opcion-radio"><input type="radio" name="cantidad" value="0"> Todas las plantas</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Filtrar por familia</legend>
+        <select id="filtro-familia"></select>
+      </fieldset>
+
+      <button id="btn-empezar" class="btn principal">Empezar</button>
+      <p id="aviso-inicio" class="aviso oculto"></p>
+    </section>
+
+    <!-- JUEGO -->
+    <section id="juego" class="tarjeta oculto">
+      <div class="visor">
+        <button id="btn-prev" class="flecha" aria-label="Imagen anterior">‹</button>
+        <img id="imagen" alt="Planta a identificar">
+        <button id="btn-next" class="flecha" aria-label="Imagen siguiente">›</button>
+        <div id="cargando" class="cargando oculto">Cargando…</div>
+      </div>
+      <div id="puntitos" class="puntitos"></div>
+
+      <div class="pistas">
+        <button id="btn-pista" class="btn secundario">💡 Pista</button>
+        <span id="texto-pista" class="texto-pista"></span>
+      </div>
+
+      <div id="zona-test" class="opciones"></div>
+
+      <form id="zona-escribir" class="escribir oculto" autocomplete="off">
+        <input id="entrada" type="text" placeholder="Nombre científico (p. ej. Quercus ilex)" autocapitalize="off" spellcheck="false">
+        <button type="submit" class="btn principal">Comprobar</button>
+      </form>
+
+      <div id="feedback" class="feedback oculto"></div>
+
+      <div class="acciones">
+        <button id="btn-saltar" class="btn secundario">Saltar</button>
+        <button id="btn-siguiente" class="btn principal oculto">Siguiente →</button>
+      </div>
+    </section>
+
+    <!-- FIN -->
+    <section id="fin" class="tarjeta oculto">
+      <h2>¡Partida terminada!</h2>
+      <p class="resultado-grande"><span id="res-puntos">0</span> puntos · <span id="res-aciertos">0</span>/<span id="res-total">0</span> aciertos</p>
+      <div id="repaso"></div>
+      <button id="btn-reiniciar" class="btn principal">Jugar otra vez</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
