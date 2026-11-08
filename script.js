@@ -10,7 +10,7 @@
      También se detectan "Quercus_ilex_1.png", "Quercus ilex1.webp", etc.
    ========================================================= */
 
-const CARPETA_IMG = "img";
+const CARPETA_IMG = "./img";
 const EXTENSIONES = ["jpg", "jpeg", "png", "webp", "JPG", "JPEG", "PNG"];
 const SEPARADORES = [" ", "_", "", "-"];
 const MAX_IMAGENES = 30;
